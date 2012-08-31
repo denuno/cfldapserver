@@ -1,4 +1,4 @@
-component output="false" persistent="false" {
+<cfcomponent output="false"><cfscript>
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -18,58 +18,55 @@ component output="false" persistent="false" {
  * under the License.
  */
 
+	thisDir = getDirectoryFromPath(getMetaData(this).path);
+	cl = createObject("LibraryLoader").init(thisDir & "/lib/").init();
+	system = cl.create("java.lang.System");
+	jFile = cl.create("java.io.File");
+	jHashSet = cl.create("java.util.HashSet");
+	jList = cl.create("java.util.List");
+	jArrayList = cl.create("java.util.ArrayList");
+
+	jLdapConnection = cl.create("org.apache.directory.ldap.client.api.LdapConnection");
+	jServerDNConstants = cl.create("org.apache.directory.server.constants.ServerDNConstants");
+	jDefaultDirectoryService = cl.create("org.apache.directory.server.core.DefaultDirectoryService");
+	jDirectoryService = cl.create("org.apache.directory.server.core.api.DirectoryService");
+	jInstanceLayout = cl.create("org.apache.directory.server.core.api.InstanceLayout");
+	jLdapCoreSessionConnection = cl.create("org.apache.directory.server.core.api.LdapCoreSessionConnection");
+	jPartition = cl.create("org.apache.directory.server.core.api.partition.Partition");
+	jSchemaPartition = cl.create("org.apache.directory.server.core.api.schema.SchemaPartition");
+	jJdbmIndex = cl.create("org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex");
+	jJdbmPartition = cl.create("org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition");
+	jLdifPartition = cl.create("org.apache.directory.server.core.partition.ldif.LdifPartition");
+	jLdapServer = cl.create("org.apache.directory.server.ldap.LdapServer");
+	jTcpTransport = cl.create("org.apache.directory.server.protocol.shared.transport.TcpTransport");
+	jIndex = cl.create("org.apache.directory.server.xdbm.Index");
+	jEntry = cl.create("org.apache.directory.shared.ldap.model.entry.Entry");
+	jLdapException = cl.create("org.apache.directory.shared.ldap.model.exception.LdapException");
+	jDn = cl.create("org.apache.directory.shared.ldap.model.name.Dn");
+	jRdn = cl.create("org.apache.directory.shared.ldap.model.name.Rdn");
+	jSchemaManager = cl.create("org.apache.directory.shared.ldap.model.schema.SchemaManager");
+	jSchemaLdifExtractor = cl.create("org.apache.directory.shared.ldap.schemaextractor.SchemaLdifExtractor");
+	jDefaultSchemaLdifExtractor = cl.create("org.apache.directory.shared.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor");
+	jLdifSchemaLoader = cl.create("org.apache.directory.shared.ldap.schemaloader.LdifSchemaLoader");
+	jDefaultSchemaManager = cl.create("org.apache.directory.shared.ldap.schemamanager.impl.DefaultSchemaManager");
+
+	jDefaultModification = cl.create("org.apache.directory.shared.ldap.model.entry.DefaultModification");
+	jModificationOperation = cl.create("org.apache.directory.shared.ldap.model.entry.ModificationOperation");
+
 	public function init() {
-   		classLoader = new LibraryLoader(getDirectoryFromPath(getMetaData(this).path) & "lib/").init();
-		var jThread = classLoader.create("java.lang.Thread");
-		var cTL = jThread.currentThread().getContextClassLoader();
-		jThread.currentThread().setContextClassLoader(classLoader.GETLOADER().getURLClassLoader());
-		system = classLoader.create("java.lang.System");
-		jFile = classLoader.create("java.io.File");
-		jHashSet = classLoader.create("java.util.HashSet");
-		jList = classLoader.create("java.util.List");
-		jArrayList = classLoader.create("java.util.ArrayList");
-
-		jLdapConnection = classLoader.create("org.apache.directory.ldap.client.api.LdapConnection");
-		jServerDNConstants = classLoader.create("org.apache.directory.server.constants.ServerDNConstants");
-		jDefaultDirectoryService = classLoader.create("org.apache.directory.server.core.DefaultDirectoryService");
-		jDirectoryService = classLoader.create("org.apache.directory.server.core.api.DirectoryService");
-		jInstanceLayout = classLoader.create("org.apache.directory.server.core.api.InstanceLayout");
-		jLdapCoreSessionConnection = classLoader.create("org.apache.directory.server.core.api.LdapCoreSessionConnection");
-		jPartition = classLoader.create("org.apache.directory.server.core.api.partition.Partition");
-		jSchemaPartition = classLoader.create("org.apache.directory.server.core.api.schema.SchemaPartition");
-		jJdbmIndex = classLoader.create("org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex");
-		jJdbmPartition = classLoader.create("org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition");
-		jLdifPartition = classLoader.create("org.apache.directory.server.core.partition.ldif.LdifPartition");
-		jLdapServer = classLoader.create("org.apache.directory.server.ldap.LdapServer");
-		jTcpTransport = classLoader.create("org.apache.directory.server.protocol.shared.transport.TcpTransport");
-		jIndex = classLoader.create("org.apache.directory.server.xdbm.Index");
-		jEntry = classLoader.create("org.apache.directory.shared.ldap.model.entry.Entry");
-		jLdapException = classLoader.create("org.apache.directory.shared.ldap.model.exception.LdapException");
-		jDn = classLoader.create("org.apache.directory.shared.ldap.model.name.Dn");
-		jRdn = classLoader.create("org.apache.directory.shared.ldap.model.name.Rdn");
-		jSchemaManager = classLoader.create("org.apache.directory.shared.ldap.model.schema.SchemaManager");
-		jSchemaLdifExtractor = classLoader.create("org.apache.directory.shared.ldap.schemaextractor.SchemaLdifExtractor");
-		jDefaultSchemaLdifExtractor = classLoader.create("org.apache.directory.shared.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor");
-		jLdifSchemaLoader = classLoader.create("org.apache.directory.shared.ldap.schemaloader.LdifSchemaLoader");
-		jDefaultSchemaManager = classLoader.create("org.apache.directory.shared.ldap.schemamanager.impl.DefaultSchemaManager");
-
-		jDefaultModification = classLoader.create("org.apache.directory.shared.ldap.model.entry.DefaultModification");
-		jModificationOperation = classLoader.create("org.apache.directory.shared.ldap.model.entry.ModificationOperation");
-
-		jLog4jPropertyConfigurator = classLoader.create("org.apache.log4j.PropertyConfigurator");
-		jLog4jPropertyConfigurator.configure(getDirectoryFromPath(getMetadata(this).path) & "/lib/log4j.properties");
-		//jBasicConfigurator = classLoader.create("org.apache.log4j.BasicConfigurator");
+		//jBasicConfigurator = cl.create("org.apache.log4j.BasicConfigurator");
 		//jBasicConfigurator.configure();
-		jThread.currentThread().setContextClassLoader(cTL);
+		//jLog4jPropertyConfigurator = cl.create("org.apache.log4j.PropertyConfigurator");
+		//jLog4jPropertyConfigurator.configure(getDirectoryFromPath(getMetadata(this).path) & "/lib/log4j.properties");
 		return this;
 	}
 
-    private function addPartition( String partitionId, String partitionDn )
+    function addPartition( String partitionId, String partitionDn )
     {
         var partition = jJdbmPartition.init(service.getSchemaManager());
         partition.setId( partitionId );
         partition.setPartitionPath( jFile.init( workDir, partitionId ).toURI() );
-        var dn = jDn.init([partitionDn]);
+        var dn = jDn.init(strArray([partitionDn]));
         partition.setSuffixDn( dn );
         service.addPartition( partition );
         return partition;
@@ -83,12 +80,13 @@ component output="false" persistent="false" {
      * @return The newly added partition
      * @throws Exception If the partition can't be added
      */
-    private function addSystemPartition( String partitionId, String partitionDn )
+    function addSystemPartition( String partitionId, String partitionDn )
     {
         var partition = jJdbmPartition.init(service.getSchemaManager());
         partition.setId( partitionId );
         partition.setPartitionPath( jFile.init( workDir, partitionId ).toURI() );
-        var dn = jDn.init([partitionDn]);
+        var dn = jDn.init(strArray([partitionDn]));
+
         partition.setSuffixDn( dn );
         return partition;
     }
@@ -99,13 +97,14 @@ component output="false" persistent="false" {
      * @param partition The partition on which we want to add index
      * @param attrs The list of attributes to index
      */
-    private void function addIndex( partition, Array attrs )
+    void function addIndex( partition, Array attrs )
     {
         // Index some attributes on the apache partition
-        indexedAttributes = jHashSet.init();
-        for ( attribute in attrs )
+        var indexedAttributes = jHashSet.init();
+        var attrib = "";
+        for ( attrib in attrs )
         {
-            indexedAttributes.add( jJdbmIndex.init( attribute ) );
+            indexedAttributes.add( jJdbmIndex.init( attrib ) );
         }
         partition.setIndexedAttributes( indexedAttributes );
     }
@@ -116,7 +115,7 @@ component output="false" persistent="false" {
      *
      * @throws Exception if the schema LDIF files are not found on the classpath
      */
-    private void function initSchemaPartition()
+    void function initSchemaPartition()
     {
     	var schemaManager = service.getSchemaManager();
     	var schemaPartition = jSchemaPartition.init(schemaManager);
@@ -129,7 +128,7 @@ component output="false" persistent="false" {
 
         // Extract the schema on disk (a brand new one) and load the registries
 		if (!schemaDir.exists()) {
-			setting requesttimeout=180;
+			setRequestTimeout(180);
 	        var extractor = jDefaultSchemaLdifExtractor.init( workDir );
 	        extractor.extractOrCopy( true );
 		}
@@ -146,7 +145,7 @@ component output="false" persistent="false" {
      * @param workDir the directory to be used for storing the data
      * @throws Exception if there were some problems while initializing the system
      */
-    private void function initDirectoryService( workDir )
+    void function initDirectoryService( workDir )
     {
         // Initialize the LDAP service
         service = jDefaultDirectoryService.init();
@@ -188,10 +187,10 @@ component output="false" persistent="false" {
         }
         catch ( any e )
         {
-            var dnFoo = jDn.init( ["dc=foo,dc=com"] );
+            var dnFoo = jDn.init( strArray(["dc=foo,dc=com"]) );
             var entryFoo = service.newEntry( dnFoo );
-            entryFoo.add("objectClass", ["top", "domain", "extensibleObject"] );
-            entryFoo.add( "dc", ["foo"] );
+            entryFoo.add("objectClass", strArray(["top", "domain", "extensibleObject"]) );
+            entryFoo.add( "dc", strArray(["foo"]) );
             service.getAdminSession().add( entryFoo );
         }
 
@@ -202,49 +201,49 @@ component output="false" persistent="false" {
         }
         catch ( Any e )
         {
-            var dnBar = jDn.init( ["dc=bar,dc=com"] );
+            var dnBar = jDn.init( strArray(["dc=bar,dc=com"]) );
             var entryBar = service.newEntry( dnBar );
-            entryBar.add( "objectClass", ["top", "domain", "extensibleObject"] );
-            entryBar.add( "dc", ["bar"] );
+            entryBar.add( "objectClass", strArray(["top", "domain", "extensibleObject"]) );
+            entryBar.add( "dc", strArray(["bar"]) );
             service.getAdminSession().add( entryBar );
         }
 
         // Inject the apache root entry
         if ( !service.getAdminSession().exists( apachePartition.getSuffixDn() ) )
         {
-            var dnApache = jDn.init( ["dc=Apache,dc=Org"] );
+            var dnApache = jDn.init( strArray(["dc=Apache,dc=Org"]) );
             var entryApache = service.newEntry( dnApache );
-            entryApache.add( "objectClass", ["top", "domain", "extensibleObject"] );
-            entryApache.add( "dc", ["Apache"] );
+            entryApache.add( "objectClass", strArray(["top", "domain", "extensibleObject"]) );
+            entryApache.add( "dc", strArray(["Apache"]) );
             service.getAdminSession().add( entryApache );
         }
 
         // Inject some other stuff
         if ( !service.getAdminSession().exists( cfldapPartition.getSuffixDn() ) )
         {
-            var dnApache = jDn.init( ["o=cfldap"] );
+            var dnApache = jDn.init( strArray(["o=cfldap"]) );
             var entryApache = service.newEntry( dnApache );
-            entryApache.add( "objectClass", ["top", "organization"] );
-            entryApache.add( "o", ["cfldap"] );
+            entryApache.add( "objectClass", strArray(["top", "organization"]) );
+            entryApache.add( "o", strArray(["cfldap"]) );
             service.getAdminSession().add( entryApache );
         }
         if ( !service.getAdminSession().exists( peoplePartition.getSuffixDn() ) )
         {
-            var dnApache = jDn.init( ["ou=people,dc=apache,dc=org"] );
+            var dnApache = jDn.init( strArray(["ou=people,dc=apache,dc=org"]) );
             var entryApache = service.newEntry( dnApache );
-            entryApache.add( "objectClass", ["top", "organizationalUnit"] );
-            entryApache.add( "ou", ["People"] );
-            entryApache.add( "description", ["People in organization"] );
+            entryApache.add( "objectClass", strArray(["top", "organizationalUnit"]) );
+            entryApache.add( "ou", strArray(["People"]) );
+            entryApache.add( "description", strArray(["People in organization"]) );
             service.getAdminSession().add( entryApache );
         }
         // We are all done !
     }
 
-    private void function setAdminPassword(password) {
+    void function setAdminPassword(password) {
 		var modList = jArrayList.init();
-        var dnApache = jDn.init( ["uid=admin,ou=system"] );
+        var dnApache = jDn.init( strArray(["uid=admin,ou=system"]) );
         var entryApache = service.newEntry( dnApache );
-        entryApache.add( "userPassword", [password] );
+        entryApache.add( "userPassword", strArray([password]) );
         modList.add( jDefaultModification.init( jModificationOperation.REPLACE_ATTRIBUTE, entryApache.get("userPassword") ) );
         service.getAdminSession().modify( entryApache.getDn(), modList );
         return;
@@ -256,7 +255,7 @@ component output="false" persistent="false" {
      *
      * @throws Exception
      */
-    private void function start(port=10389, enableSSL=true,allowAnonymousAccess=false, ldifDirectory=""){
+    void function start(port=10389, enableSSL=true,allowAnonymousAccess=false, ldifDirectory=""){
     	if(ldifDirectory=="") {
 	        workDir = jFile.init( getDirectoryFromPath(getMetadata(this).path) & "/server-ldif" );
     	} else {
@@ -270,10 +269,10 @@ component output="false" persistent="false" {
         service.setAllowAnonymousAccess(allowAnonymousAccess);
         // Read an entry
         var ldap = jLdapCoreSessionConnection.init(service);
-        var result = ldap.lookup( jDN.init( ["dc=apache,dc=org"] ) );
+        var result = ldap.lookup( jDN.init( strArray(["dc=apache,dc=org"]) ) );
         // And print it if available
         System.out.println( "Found entry : " & result );
-        result = ldap.lookup( jDN.init( ["o=cfldap"] ) );
+        result = ldap.lookup( jDN.init( strArray(["o=cfldap"]) ) );
         // And print it if available
         System.out.println( "Found entry : " & result );
 
@@ -295,7 +294,7 @@ component output="false" persistent="false" {
      *
      * @throws Exception
      */
-    private void function stop()
+    void function stop()
     {
     	if(isNull(service)) {
     		throw(type="cfldapserver.communication.error",message="no running server on this thread");
@@ -317,20 +316,31 @@ component output="false" persistent="false" {
 	/**
 	 * Access point for this component.  Used for thread context loader wrapping.
 	 **/
-	function callMethod(methodName, required args) {
-		var jThread = classLoader.create("java.lang.Thread");
-		var cTL = jThread.currentThread().getContextClassLoader();
-		jThread.currentThread().setContextClassLoader(classLoader.GETLOADER().getURLClassLoader());
-		try{
+	function callMethod(methodName, args) {
+		variables.switchThreadContextClassLoader = cl.getLoader().switchThreadContextClassLoader;
+		return switchThreadContextClassLoader(this.runInThreadContext,arguments,cl.getLoader().getURLClassLoader());
+    }
+
+	function runInThreadContext(methodName,  args) {
 			var theMethod = this[methodName];
 			return theMethod(argumentCollection=args);
+		try{
 		} catch (any e) {
 			try{
 				stopServer();
 			} catch(any err) {}
-			jThread.currentThread().setContextClassLoader(cTL);
 			throw(e);
 		}
-		jThread.currentThread().setContextClassLoader(cTL);
 	}
-}
+
+	function strArray(inarray) {
+		return javaCast("String[]",inarray);
+	}
+</cfscript>
+
+	<cffunction name="setRequestTimeout">
+		<cfargument name="timeout" required="true" />
+		<cfsetting requesttimeout="#timeout#" />
+	</cffunction>
+
+</cfcomponent>
